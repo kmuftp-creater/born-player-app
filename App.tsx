@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import ItineraryForm from './components/ItineraryForm';
 import ItineraryDisplay from './components/ItineraryDisplay';
@@ -53,6 +52,7 @@ const App: React.FC = () => {
     setFormKey(Date.now());
   };
 
+  // --- 我們修改的函式從這裡開始 ---
   const handleGenerateItinerary = useCallback(async (
     destination: string,
     duration: string,
@@ -73,12 +73,21 @@ const App: React.FC = () => {
       
       // Start generating image non-blockingly
       setIsGeneratingImage(true);
+      // 這是一張我們預設的旅行圖片網址
+      const defaultImageUrl = 'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=1885&auto=format&fit=crop';
       const imagePrompt = `Photorealistic, vibrant travel photograph of ${plan.destination}, focusing on ${plan.tripTitle}. High quality, cinematic, 16:9 aspect ratio. No text or people.`;
+      
       generateTripImage(imagePrompt).then(imageUrl => {
           if (imageUrl) {
-              const finalPlan = { ...planWithId, tripImageUrl: `data:image/jpeg;base64,${imageUrl}` };
-              setItinerary(currentItinerary => (currentItinerary?.id === finalPlan.id ? finalPlan : currentItinerary));
-              setHistory(prev => prev.map(p => p.id === finalPlan.id ? finalPlan : p));
+            // 如果 AI 成功回傳圖片，我們就用 base64 的格式
+            const finalPlan = { ...planWithId, tripImageUrl: `data:image/jpeg;base64,${imageUrl}` };
+            setItinerary(currentItinerary => (currentItinerary?.id === finalPlan.id ? finalPlan : currentItinerary));
+            setHistory(prev => prev.map(p => p.id === finalPlan.id ? finalPlan : p));
+          } else {
+            // 否則，我們就直接使用預設圖片的網址
+            const finalPlan = { ...planWithId, tripImageUrl: defaultImageUrl };
+            setItinerary(currentItinerary => (currentItinerary?.id === finalPlan.id ? finalPlan : currentItinerary));
+            setHistory(prev => prev.map(p => p.id === finalPlan.id ? finalPlan : p));
           }
       }).finally(() => {
           setIsGeneratingImage(false);
@@ -91,6 +100,7 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, [language]);
+  // --- 函式修改結束 ---
   
   const handleRefineItinerary = useCallback(async (prompt: string) => {
     if (!itinerary) return;
@@ -131,10 +141,10 @@ const App: React.FC = () => {
               <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.appName}</h1>
             </div>
             <div className="flex items-center space-x-2">
-               <button onClick={handleStartOver} className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
-                 <RotateCcw className="h-4 w-4" />
-                 <span>{t.startOver}</span>
-               </button>
+              <button onClick={handleStartOver} className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                <RotateCcw className="h-4 w-4" />
+                <span>{t.startOver}</span>
+              </button>
               <LanguageSwitcher
                 currentLanguage={language}
                 onLanguageChange={setLanguage}
@@ -176,7 +186,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="lg:col-span-8 xl:col-span-9">
-             <ItineraryDisplay
+            <ItineraryDisplay
               itinerary={itinerary}
               isLoading={isRefining}
               isGeneratingImage={isGeneratingImage}
