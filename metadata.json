@@ -1,0 +1,5 @@
+{
+  "name": "天生玩家 (Born Player) - AI Travel Planner",
+  "description": "An AI-powered travel planner that generates detailed itineraries based on your destination, duration, and interests. It provides daily schedules, transportation, dining recommendations, and local tips.",
+  "requestFramePermissions": []
+}
