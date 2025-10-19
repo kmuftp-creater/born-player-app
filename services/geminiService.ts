@@ -1,8 +1,20 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { ItineraryPlan, Language } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// --- 我們修改的部分從這裡開始 ---
+
+// 1. 使用正確的咒語和名牌名稱，從環境變數讀取金鑰
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+
+// 2. 檢查一下，確保金鑰真的存在
+if (!apiKey) {
+  throw new Error("VITE_GOOGLE_API_KEY is not set in the environment variables. Please check your deployment settings.");
+}
+
+// 3. 使用讀取到的 apiKey 來初始化 Google AI
+const ai = new GoogleGenAI({ apiKey: apiKey });
+
+// --- 修改結束，後面的程式碼都跟您原本的一樣 ---
 
 const itinerarySchema = {
     type: Type.OBJECT,
@@ -243,9 +255,9 @@ export const generateTripImage = async (prompt: string): Promise<string> => {
             model: 'imagen-4.0-generate-001',
             prompt: prompt,
             config: {
-              numberOfImages: 1,
-              outputMimeType: 'image/jpeg',
-              aspectRatio: '16:9',
+                numberOfImages: 1,
+                outputMimeType: 'image/jpeg',
+                aspectRatio: '16:9',
             },
         });
 
