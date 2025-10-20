@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from 'react';
-// 修正：將路徑改回標準的相對路徑
 import ItineraryForm from './components/ItineraryForm';
 import ItineraryDisplay from './components/ItineraryDisplay';
 import LanguageSwitcher from './components/LanguageSwitcher';
@@ -8,7 +7,7 @@ import HistoryPanel from './components/HistoryPanel';
 import { ItineraryPlan, Language } from './types';
 import { generateItinerary, refineItinerary, generateTripImage } from './services/geminiService';
 import { TRANSLATIONS } from './constants';
-// 新增：匯入 BookOpen 圖示
+// 匯入 BookOpen 圖示
 import { PlaneTakeoff, PlusSquare, History, RotateCcw, BookOpen } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -117,7 +116,7 @@ const App: React.FC = () => {
         ],
         'italy': [
           'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=2070&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1528211516428-53e72c575a8b?q=80&w=2070&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1528211516428-53e72c57f5a8b?q=80&w=2070&auto=format&fit=crop',
         ],
         'france': [
           'https://images.unsplash.com/photo-1502602898657-3e91760c0341?q=80&w=2070&auto=format&fit=crop',
@@ -231,12 +230,13 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col print:bg-white">
       <header className="bg-white shadow-md sticky top-0 z-20 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center py-4 gap-4 sm:gap-0">
+          {/* 修正 #1：還原 Header 的排版，讓手機版也能正常顯示 */}
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <PlaneTakeoff className="h-8 w-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.appName}</h1>
             </div>
-            <div className="flex items-center space-x-2 flex-wrap justify-center">
+            <div className="flex items-center space-x-2">
               <button onClick={handleStartOver} className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
                 <RotateCcw className="h-4 w-4" />
                 <span>{t.startOver}</span>
@@ -255,6 +255,7 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
           <div className="lg:col-span-4 xl:col-span-3 print:hidden">
             <div className="sticky top-24">
+              {/* 修正 #2：新增「操作說明」按鈕 */}
               <a 
                   href="https://huobest.com/article/83" 
                   target="_blank" 
@@ -315,7 +316,8 @@ const App: React.FC = () => {
 
       <footer className="bg-white border-t mt-8 print:hidden">
         <div className="container mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
-          <p>v.0.3.3 &copy; {t.copyright}</p>
+          {/* 修正 #3：更新版本號 */}
+          <p>v.0.3.4 &copy; {t.copyright}</p>
         </div>
       </footer>
     </div>
@@ -323,4 +325,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
