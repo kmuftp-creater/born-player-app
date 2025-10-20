@@ -259,3 +259,23 @@ export const generateTripImage = async (prompt: string): Promise<string> => {
         return ""; 
     }
 };
+
+// --- 新增的函式 ---
+export const getCountryFromDestination = async (destination: string): Promise<string> => {
+    const prompt = `What country is the city or location "${destination}" in? Respond with only the country name in English and in lowercase. For example, for "Tokyo" respond "japan", for "Paris" respond "france", for "Taipei" respond "taiwan". If you cannot determine the country, respond with "general".`;
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        const country = response.text.trim().toLowerCase();
+        // 基本驗證，確保回傳的是一個簡單的單字
+        if (country && !country.includes(' ')) {
+            return country;
+        }
+        return 'general';
+    } catch (error) {
+        console.error("Error determining country:", error);
+        return 'general'; // 如果 API 失敗，則退回通用類別
+    }
+};
