@@ -1,7 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ItineraryPlan, Language } from '../types';
 
-// 這是整個檔案唯一需要的 ai 宣告，使用您專案最原始、最正確的寫法
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const itinerarySchema = {
@@ -236,31 +235,7 @@ export const refineItinerary = async (
     }
 }
 
-
-export const generateTripImage = async (prompt: string): Promise<string> => {
-    try {
-        const response = await ai.models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
-            config: {
-                numberOfImages: 1,
-                outputMimeType: 'image/jpeg',
-                aspectRatio: '16:9',
-            },
-        });
-
-        if (response.generatedImages && response.generatedImages.length > 0) {
-            return response.generatedImages[0].image.imageBytes;
-        }
-        throw new Error("No image was generated.");
-    } catch (error) {
-        console.error("Error generating image:", error);
-        // Don't throw, just return an empty string to not break the app
-        return ""; 
-    }
-};
-
-// --- 新增的函式 ---
+// 唯一保留的 AI 圖片相關函式，現在只用來辨識國家
 export const getCountryFromDestination = async (destination: string): Promise<string> => {
     const prompt = `What country is the city or location "${destination}" in? Respond with only the country name in English and in lowercase. For example, for "Tokyo" respond "japan", for "Paris" respond "france", for "Taipei" respond "taiwan". If you cannot determine the country, respond with "general".`;
     try {
