@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
-// 修正：將匯入路徑還原為標準的相對路徑
-import ItineraryForm from './components/ItineraryForm';
-import ItineraryDisplay from './components/ItineraryDisplay';
-import LanguageSwitcher from './components/LanguageSwitcher';
-import FollowUpForm from './components/FollowUpForm';
-import HistoryPanel from './components/HistoryPanel';
-import { ItineraryPlan, Language } from './types';
-import { generateItinerary, refineItinerary, generateTripImage } from './services/geminiService';
-import { TRANSLATIONS } from './constants';
+// 修正：將匯入路徑還原為專案設定的 @ 別名
+import ItineraryForm from '@/components/ItineraryForm';
+import ItineraryDisplay from '@/components/ItineraryDisplay';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import FollowUpForm from '@/components/FollowUpForm';
+import HistoryPanel from '@/components/HistoryPanel';
+import { ItineraryPlan, Language } from '@/types';
+import { generateItinerary, refineItinerary, generateTripImage } from '@/services/geminiService';
+import { TRANSLATIONS } from '@/constants';
 import { PlaneTakeoff, PlusSquare, History, RotateCcw, BookOpen } from 'lucide-react';
 
 const App: React.FC = () => {
