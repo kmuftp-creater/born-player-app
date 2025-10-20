@@ -4,10 +4,9 @@ import { Translations } from '../types';
 import { INTEREST_OPTIONS } from '../constants';
 import { Send, Upload, X, Plus } from 'lucide-react';
 import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Setup PDF.js worker to enable PDF parsing in the browser.
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://aistudiocdn.com/pdfjs-dist@^4.6.0/build/pdf.worker.mjs`;
+import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+// 直接匯入 worker，讓 Vite 幫我們打包，而不是從網路下載
+import 'pdfjs-dist/build/pdf.worker.entry';
 
 interface ItineraryFormProps {
   onSubmit: (destination: string, duration: string, arrivalTime: string, interests: string[], startDate: string, draftContent: string | null) => void;
