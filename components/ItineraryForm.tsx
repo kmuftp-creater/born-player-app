@@ -7,7 +7,7 @@ import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 // 直接匯入 worker，讓 Vite 幫我們打包，而不是從網路下載
 import 'pdfjs-dist/build/pdf.worker.entry';
-
+ 
 interface ItineraryFormProps {
   onSubmit: (destination: string, duration: string, arrivalTime: string, interests: string[], startDate: string, draftContent: string | null) => void;
   isLoading: boolean;
