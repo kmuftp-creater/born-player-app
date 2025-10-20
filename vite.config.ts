@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
                     }
                 ]
             })
-        ],
+        ], 
         // 這是您專案原本就有的關鍵設定，我們現在要用回這個設定
         define: {
             'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
