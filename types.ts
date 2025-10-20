@@ -15,7 +15,7 @@ export interface ItineraryItem {
     details: string;
   };
 }
-
+ 
 export interface NearbyRecommendation {
   name: string;
   type: 'attraction' | 'food' | 'shopping';
