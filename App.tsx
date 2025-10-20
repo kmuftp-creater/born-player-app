@@ -5,7 +5,6 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import FollowUpForm from './components/FollowUpForm';
 import HistoryPanel from './components/HistoryPanel';
 import { ItineraryPlan, Language } from './types';
-// --- 修正 #1: 匯入 getImageFromUnsplash 和 getCountryFromDestination，並移除 generateTripImage ---
 import { generateItinerary, refineItinerary, getCountryFromDestination, getImageFromUnsplash } from './services/geminiService';
 import { TRANSLATIONS } from './constants';
 import { PlaneTakeoff, PlusSquare, History, RotateCcw, BookOpen } from 'lucide-react';
@@ -53,7 +52,6 @@ const App: React.FC = () => {
     setFormKey(Date.now());
   };
 
-  // --- 修正 #2: 完整替換 handleGenerateItinerary 函式以實現您的最終策略 ---
   const handleGenerateItinerary = useCallback(async (
     destination: string,
     duration: string,
@@ -76,101 +74,66 @@ const App: React.FC = () => {
       setIsGeneratingImage(true);
 
       try {
-        // 1. 呼叫 AI 來辨識國家
-        const country = await getCountryFromDestination(plan.destination);
+        const countryImages: { [key: string]: string[] } = {
+            'japan': [
+              'https://images.unsplash.com/photo-1524413840807-0c36798388a1?q=80&w=2070&auto=format&fit=crop', // 東京 淺草寺
+              'https://images.unsplash.com/photo-1554797589-724ac63dc831?q=80&w=2070&auto=format&fit=crop', // 京都 伏見稻荷
+              'https://images.unsplash.com/photo-1624253321171-1be53e12f5f4?q=80&w=2070&auto=format&fit=crop', // 大阪 道頓堀
+              'https://images.unsplash.com/photo-1534009993213-7b4397d4a599?q=80&w=1974&auto=format&fit=crop', // 北海道 札幌
+              'https://images.unsplash.com/photo-1617466487042-3ea4b95b7978?q=80&w=2070&auto=format&fit=crop', // 沖繩 海灘
+            ],
+            'taiwan': [
+                'https://images.unsplash.com/photo-1599789438273-02b66d40f4d1?q=80&w=2070&auto=format&fit=crop', // 台北101
+                'https://images.unsplash.com/photo-1629018413596-a874b8830386?q=80&w=2070&auto=format&fit=crop', // 花蓮 太魯閣
+                'https://images.unsplash.com/photo-1584315794125-6351b8a5d20f?q=80&w=2070&auto=format&fit=crop', // 台中 高美濕地
+                'https://images.unsplash.com/photo-1568252252103-9d10a2736822?q=80&w=2070&auto=format&fit=crop', // 高雄 龍虎塔
+                'https://images.unsplash.com/photo-1620942589998-3c39ace71d7d?q=80&w=1974&auto=format&fit=crop', // 九份
+            ],
+            'korea': [
+                'https://images.unsplash.com/photo-1558403194-6017253b2368?q=80&w=2070&auto=format&fit=crop', // 首爾 景福宮
+                'https://images.unsplash.com/photo-1622332152336-24e525a74581?q=80&w=1932&auto=format&fit=crop', // 釜山 甘川洞
+                'https://images.unsplash.com/photo-1582211244837-1e5f03d528b7?q=80&w=2071&auto=format&fit=crop', // 濟州島
+                'https://images.unsplash.com/photo-1612683938734-7104b5a0346c?q=80&w=1974&auto=format&fit=crop', // 首爾塔
+                'https://images.unsplash.com/photo-1542038784-56e28e43493b?q=80&w=2070&auto=format&fit=crop', // 首爾 街景
+            ],
+            'vietnam': [
+                'https://images.unsplash.com/photo-1515849887535-3cfa5ab7c429?q=80&w=2098&auto=format&fit=crop', // 下龍灣
+                'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=2070&auto=format&fit=crop', // 峴港
+                'https://images.unsplash.com/photo-1555921015-5532091f6026?q=80&w=2070&auto=format&fit=crop', // 胡志明市
+            ],
+            'thailand': [
+                'https://images.unsplash.com/photo-1597531777494-a174094a9a83?q=80&w=2070&auto=format&fit=crop', // 曼谷
+                'https://images.unsplash.com/photo-1579733036613-2d131f4a97b2?q=80&w=1974&auto=format&fit=crop', // 清邁
+                'https://images.unsplash.com/photo-1540202404-1b927e27f293?q=80&w=2070&auto=format&fit=crop', // 普吉島
+            ],
+            'china': [
+                'https://images.unsplash.com/photo-1543163353-a5b512a52427?q=80&w=2070&auto=format&fit=crop', // 北京 長城
+                'https://images.unsplash.com/photo-1618496424208-01383783c500?q=80&w=2070&auto=format&fit=crop', // 上海
+                'https://images.unsplash.com/photo-1574042812044-b0267a1b94b7?q=80&w=2070&auto=format&fit=crop', // 桂林
+            ],
+            'indonesia': [ 'https://images.unsplash.com/photo-1544378382-5ea81d6c8b9d?q=80&w=2070&auto=format&fit=crop' ],
+            'italy': [ 'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=2070&auto=format&fit=crop', 'https://images.unsplash.com/photo-1528211516428-53e72c57f5a8b?q=80&w=2070&auto=format&fit=crop' ],
+            'france': [ 'https://images.unsplash.com/photo-1502602898657-3e91760c0341?q=80&w=2070&auto=format&fit=crop' ],
+            'uk': [ 'https://images.unsplash.com/photo-1533929736458-ca5889122775?q=80&w=2070&auto=format&fit=crop' ],
+            'greece': [ 'https://images.unsplash.com/photo-1562979314-190f3c2e1092?q=80&w=2070&auto=format&fit=crop' ],
+            'switzerland': [ 'https://images.unsplash.com/photo-1588614959068-0e97c933b342?q=80&w=2070&auto=format&fit=crop' ],
+            'turkey': [ 'https://images.unsplash.com/photo-1569949381669-ecf31ae8e613?q=80&w=2070&auto=format&fit=crop' ],
+            'iceland': [ 'https://images.unsplash.com/photo-1547539329-0d196c1b3e70?q=80&w=2070&auto=format&fit=crop' ],
+            'netherlands': [ 'https://images.unsplash.com/photo-1526048598681-46c003c2b8b9?q=80&w=2070&auto=format&fit=crop' ],
+            'spain': [ 'https://images.unsplash.com/photo-1581430049591-e27538890799?q=80&w=2070&auto=format&fit=crop' ],
+            'usa': [ 'https://images.unsplash.com/photo-1529655683826-1c21ef24a42b?q=80&w=1974&auto=format&fit=crop' ],
+            'canada': [ 'https://images.unsplash.com/photo-1505881502353-a180d4737233?q=80&w=2070&auto=format&fit=crop' ],
+            'australia': [ 'https://images.unsplash.com/photo-1541417904953-524c9c289e47?q=80&w=2071&auto=format&fit=crop' ],
+            'uae': [ 'https://images.unsplash.com/photo-1517935706615-2717063c2225?q=80&w=2070&auto=format&fit=crop' ],
+            'general': [ 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop', 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop' ]
+            // 您可以把完整的全球圖庫放在這裡作為最終的保險
+        };
         
-        // 2. 嘗試從 Unsplash 獲取圖片
+        const country = await getCountryFromDestination(plan.destination);
         let imageUrl = await getImageFromUnsplash(country === 'general' ? plan.destination : country);
 
-        // 3. 如果 Unsplash 失敗了，就啟用我們的後備方案
         if (!imageUrl) {
           console.log("Unsplash fetch failed, falling back to internal library.");
-          const countryImages: { [key: string]: string[] } = {
-        'japan': [
-          'https://images.unsplash.com/photo-1524413840807-0c36798388a1?q=80&w=2070&auto=format&fit=crop', 
-          'https://images.unsplash.com/photo-1554797589-724ac63dc831?q=80&w=2070&auto=format&fit=crop', 
-          'https://images.unsplash.com/photo-1624253321171-1be53e12f5f4?q=80&w=2070&auto=format&fit=crop', 
-          'https://images.unsplash.com/photo-1534009993213-7b4397d4a599?q=80&w=1974&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1617466487042-3ea4b95b7978?q=80&w=2070&auto=format&fit=crop', 
-        ],
-        'taiwan': [
-            'https://images.unsplash.com/photo-1599789438273-02b66d40f4d1?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1629018413596-a874b8830386?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1584315794125-6351b8a5d20f?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1568252252103-9d10a2736822?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1620942589998-3c39ace71d7d?q=80&w=1974&auto=format&fit=crop',
-        ],
-        'korea': [
-            'https://images.unsplash.com/photo-1558403194-6017253b2368?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1622332152336-24e525a74581?q=80&w=1932&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1582211244837-1e5f03d528b7?q=80&w=2071&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1612683938734-7104b5a0346c?q=80&w=1974&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1542038784-56e28e43493b?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'vietnam': [
-            'https://images.unsplash.com/photo-1515849887535-3cfa5ab7c429?q=80&w=2098&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1555921015-5532091f6026?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'thailand': [
-            'https://images.unsplash.com/photo-1597531777494-a174094a9a83?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1579733036613-2d131f4a97b2?q=80&w=1974&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1540202404-1b927e27f293?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'china': [
-            'https://images.unsplash.com/photo-1543163353-a5b512a52427?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1618496424208-01383783c500?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1574042812044-b0267a1b94b7?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'indonesia': [
-            'https://images.unsplash.com/photo-1544378382-5ea81d6c8b9d?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'italy': [
-          'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=2070&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1528211516428-53e72c57f5a8b?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'france': [
-          'https://images.unsplash.com/photo-1502602898657-3e91760c0341?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'uk': [
-            'https://images.unsplash.com/photo-1533929736458-ca5889122775?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'greece': [
-            'https://images.unsplash.com/photo-1562979314-190f3c2e1092?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'switzerland': [
-            'https://images.unsplash.com/photo-1588614959068-0e97c933b342?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'turkey': [
-            'https://images.unsplash.com/photo-1569949381669-ecf31ae8e613?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'iceland': [
-            'https://images.unsplash.com/photo-1547539329-0d196c1b3e70?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'netherlands': [
-            'https://images.unsplash.com/photo-1526048598681-46c003c2b8b9?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'spain': [
-            'https://images.unsplash.com/photo-1581430049591-e27538890799?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'usa': [
-            'https://images.unsplash.com/photo-1529655683826-1c21ef24a42b?q=80&w=1974&auto=format&fit=crop',
-        ],
-        'canada': [
-            'https://images.unsplash.com/photo-1505881502353-a180d4737233?q=80&w=2070&auto=format&fit=crop',
-        ],
-        'australia': [
-            'https://images.unsplash.com/photo-1541417904953-524c9c289e47?q=80&w=2071&auto=format&fit=crop',
-        ],
-        'uae': [
-            'https://images.unsplash.com/photo-1517935706615-2717063c2225?q=80&w=2070&auto=format&fit=crop',
-        ],
-            // 您可以把完整的全球圖庫放在這裡作為最終的保險
-        'general': [
-            'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop',
-        ]
-      };
           const imageList = countryImages[country] || countryImages['general'];
           const randomIndex = Math.floor(Math.random() * imageList.length);
           imageUrl = imageList[randomIndex];
@@ -195,8 +158,10 @@ const App: React.FC = () => {
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-      setIsLoading(false); // 確保在主流程失敗時也停止讀取
-      setIsGeneratingImage(false);
+    } finally {
+      // --- 我們新增的修正 ---
+      // 無論主流程成功或失敗，最後都一定要把「處理中」的牌子拿下來
+      setIsLoading(false);
     }
   }, [language]);
   
@@ -325,4 +290,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
