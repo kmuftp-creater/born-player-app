@@ -5,7 +5,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import FollowUpForm from './components/FollowUpForm';
 import HistoryPanel from './components/HistoryPanel';
 import { ItineraryPlan, Language } from './types';
-// --- 修正 #1: 匯入 getImageFromUnsplash 和 getCountryFromDestination ---
+// --- 修正 #1: 匯入 getImageFromUnsplash 和 getCountryFromDestination，並移除 generateTripImage ---
 import { generateItinerary, refineItinerary, getCountryFromDestination, getImageFromUnsplash } from './services/geminiService';
 import { TRANSLATIONS } from './constants';
 import { PlaneTakeoff, PlusSquare, History, RotateCcw, BookOpen } from 'lucide-react';
@@ -53,6 +53,7 @@ const App: React.FC = () => {
     setFormKey(Date.now());
   };
 
+  // --- 修正 #2: 完整替換 handleGenerateItinerary 函式以實現您的最終策略 ---
   const handleGenerateItinerary = useCallback(async (
     destination: string,
     duration: string,
@@ -74,8 +75,6 @@ const App: React.FC = () => {
       
       setIsGeneratingImage(true);
 
-      // --- 修正 #2: 執行您的最終智慧選圖策略 ---
-      
       try {
         // 1. 呼叫 AI 來辨識國家
         const country = await getCountryFromDestination(plan.destination);
@@ -166,11 +165,11 @@ const App: React.FC = () => {
         'uae': [
             'https://images.unsplash.com/photo-1517935706615-2717063c2225?q=80&w=2070&auto=format&fit=crop',
         ],
+            // 您可以把完整的全球圖庫放在這裡作為最終的保險
         'general': [
             'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop',
         ]
-            // 您可以把完整的全球圖庫放在這裡作為最終的保險
       };
           const imageList = countryImages[country] || countryImages['general'];
           const randomIndex = Math.floor(Math.random() * imageList.length);
@@ -196,7 +195,7 @@ const App: React.FC = () => {
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-      setIsLoading(false);
+      setIsLoading(false); // 確保在主流程失敗時也停止讀取
       setIsGeneratingImage(false);
     }
   }, [language]);
