@@ -5,7 +5,7 @@ import { Send, Upload, X, Plus } from 'lucide-react';
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// 將 worker 的路徑指向我們用 vite-plugin-static-copy 外掛複製後的位置
+// 將 worker 的路徑指向我們用外掛複製後的位置
 pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
 
 interface ItineraryFormProps {
@@ -64,7 +64,9 @@ const ItineraryForm: React.FC<ItineraryFormProps> = ({ onSubmit, isLoading, tran
     setIsParsing(true);
     setDraftFileName(file.name);
     setDraftContent(null);
-    event.target.value = ''; // Reset file input
+    if(event.target) {
+        event.target.value = ''; // Reset file input
+    }
 
     const readFile = (inputFile: File, readAs: 'text' | 'arrayBuffer'): Promise<string | ArrayBuffer> => {
       const reader = new FileReader();
