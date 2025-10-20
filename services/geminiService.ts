@@ -235,7 +235,6 @@ export const refineItinerary = async (
     }
 }
 
-// 唯一保留的 AI 圖片相關函式，現在只用來辨識國家
 export const getCountryFromDestination = async (destination: string): Promise<string> => {
     const prompt = `What country is the city or location "${destination}" in? Respond with only the country name in English and in lowercase. For example, for "Tokyo" respond "japan", for "Paris" respond "france", for "Taipei" respond "taiwan". If you cannot determine the country, respond with "general".`;
     try {
@@ -244,13 +243,42 @@ export const getCountryFromDestination = async (destination: string): Promise<st
             contents: prompt,
         });
         const country = response.text.trim().toLowerCase();
-        // 基本驗證，確保回傳的是一個簡單的單字
         if (country && !country.includes(' ')) {
             return country;
         }
         return 'general';
     } catch (error) {
         console.error("Error determining country:", error);
-        return 'general'; // 如果 API 失敗，則退回通用類別
+        return 'general';
     }
 };
+
+// --- 我們新增的函式 ---
+export const getImageFromUnsplash = async (query: string): Promise<string | null> => {
+    const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+    if (!unsplashAccessKey) {
+        console.error("Unsplash Access Key is not configured.");
+        return null;
+    }
+
+    const url = new URL("https://api.unsplash.com/photos/random");
+    url.searchParams.append("client_id", unsplashAccessKey);
+    url.searchParams.append("query", `${query} travel`);
+    url.searchParams.append("orientation", "landscape");
+
+    try {
+        const response = await fetch(url.toString());
+        if (!response.ok) {
+            console.error(`Unsplash API error: ${response.status} ${response.statusText}`);
+            const errorData = await response.json();
+            console.error(errorData);
+            return null;
+        }
+        const data = await response.json();
+        return data.urls.regular; 
+    } catch (error) {
+        console.error("Error fetching image from Unsplash:", error);
+        return null;
+    }
+};
+
