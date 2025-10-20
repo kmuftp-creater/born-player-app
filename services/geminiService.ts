@@ -1,10 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ItineraryPlan, Language } from '../types';
 
-// --- 我們修改的部分從這裡開始 ---
-
-// 1. 使用正確的咒語和名牌名稱，從環境變數讀取金鑰
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+// 用回專案最原始、最正確的寫法
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // 2. 檢查一下，確保金鑰真的存在
 if (!apiKey) {
