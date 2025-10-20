@@ -3,8 +3,10 @@ import { Translations } from '../types';
 import { INTEREST_OPTIONS } from '../constants';
 import { Send, Upload, X, Plus } from 'lucide-react';
 import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf';
-import 'pdfjs-dist/build/pdf.worker.entry';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// 將 worker 的路徑指向我們用 vite-plugin-static-copy 外掛複製後的位置
+pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
 
 interface ItineraryFormProps {
   onSubmit: (destination: string, duration: string, arrivalTime: string, interests: string[], startDate: string, draftContent: string | null) => void;
