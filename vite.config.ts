@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
         // 這是您專案原本就有的關鍵設定，我們現在要用回這個設定
         define: {
             'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-            'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+            'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
             // --- 新增這一行 ---
             'process.env.UNSPLASH_ACCESS_KEY': JSON.stringify(env.UNSPLASH_ACCESS_KEY)
         },
