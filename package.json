@@ -1,5 +1,5 @@
 {
-  "name": "born-player",
+  "name": "born-player-ai-travel-planner",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -26,6 +26,7 @@
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vite-plugin-static-copy": "^1.0.6"
   }
 }
