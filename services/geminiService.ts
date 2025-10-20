@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ItineraryPlan, Language } from '../types';
 
-// 這是整個檔案唯一需要的 ai 宣告，使用您專案最原始、最正確的寫法
+// 這是整個檔案唯一需要的 ai 宣告，使用您專案最原始、最正確的寫法 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const itinerarySchema = {
