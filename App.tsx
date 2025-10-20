@@ -79,7 +79,7 @@ const App: React.FC = () => {
           'https://images.unsplash.com/photo-1524413840807-0c36798388a1?q=80&w=2070&auto=format&fit=crop', 
           'https://images.unsplash.com/photo-1554797589-724ac63dc831?q=80&w=2070&auto=format&fit=crop', 
           'https://images.unsplash.com/photo-1624253321171-1be53e12f5f4?q=80&w=2070&auto=format&fit=crop', 
-          'https://images.unsplash.com/photo-1534009993213-7b4397d4a-599?q=80&w=1974&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1534009993213-7b4397d4a599?q=80&w=1974&auto=format&fit=crop',
           'https://images.unsplash.com/photo-1617466487042-3ea4b95b7978?q=80&w=2070&auto=format&fit=crop', 
         ],
         'taiwan': [
@@ -231,14 +231,14 @@ const App: React.FC = () => {
       <header className="bg-white shadow-md sticky top-0 z-20 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3 flex-shrink-0">
-              <PlaneTakeoff className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight whitespace-nowrap">{t.appName}</h1>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <PlaneTakeoff className="h-7 w-7 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight whitespace-nowrap">{t.appName}</h1>
             </div>
             <div className="flex items-center space-x-2">
               <button onClick={handleStartOver} className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
                 <RotateCcw className="h-4 w-4" />
-                <span className="hidden sm:inline">{t.startOver}</span>
+                <span>{t.startOver}</span>
               </button>
               <LanguageSwitcher
                 currentLanguage={language}
