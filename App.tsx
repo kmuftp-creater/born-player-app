@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
-// 修正：將匯入路徑還原為專案設定的 @ 別名
-import ItineraryForm from '@/components/ItineraryForm';
-import ItineraryDisplay from '@/components/ItineraryDisplay';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
-import FollowUpForm from '@/components/FollowUpForm';
-import HistoryPanel from '@/components/HistoryPanel';
-import { ItineraryPlan, Language } from '@/types';
-import { generateItinerary, refineItinerary, generateTripImage } from '@/services/geminiService';
-import { TRANSLATIONS } from '@/constants';
+import ItineraryForm from './components/ItineraryForm';
+import ItineraryDisplay from './components/ItineraryDisplay';
+import LanguageSwitcher from './components/LanguageSwitcher';
+import FollowUpForm from './components/FollowUpForm';
+import HistoryPanel from './components/HistoryPanel';
+import { ItineraryPlan, Language } from './types';
+// --- 修正 #1: 匯入 getImageFromUnsplash 和 getCountryFromDestination ---
+import { generateItinerary, refineItinerary, getCountryFromDestination, getImageFromUnsplash } from './services/geminiService';
+import { TRANSLATIONS } from './constants';
 import { PlaneTakeoff, PlusSquare, History, RotateCcw, BookOpen } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -67,14 +67,26 @@ const App: React.FC = () => {
     setItinerary(null);
     try {
       const plan = await generateItinerary(destination, duration, arrivalTime, interests, startDate, language, draftContent);
-      const planWithId = { ...plan, id: Date.now().toString() };
+      let planWithId = { ...plan, id: Date.now().toString(), tripImageUrl: '' };
       
       setItinerary(planWithId);
       setHistory(prev => [planWithId, ...prev.filter(p => p.id !== planWithId.id)]);
       
       setIsGeneratingImage(true);
 
-      const countryImages: { [key: string]: string[] } = {
+      // --- 修正 #2: 執行您的最終智慧選圖策略 ---
+      
+      try {
+        // 1. 呼叫 AI 來辨識國家
+        const country = await getCountryFromDestination(plan.destination);
+        
+        // 2. 嘗試從 Unsplash 獲取圖片
+        let imageUrl = await getImageFromUnsplash(country === 'general' ? plan.destination : country);
+
+        // 3. 如果 Unsplash 失敗了，就啟用我們的後備方案
+        if (!imageUrl) {
+          console.log("Unsplash fetch failed, falling back to internal library.");
+          const countryImages: { [key: string]: string[] } = {
         'japan': [
           'https://images.unsplash.com/photo-1524413840807-0c36798388a1?q=80&w=2070&auto=format&fit=crop', 
           'https://images.unsplash.com/photo-1554797589-724ac63dc831?q=80&w=2070&auto=format&fit=crop', 
@@ -158,42 +170,34 @@ const App: React.FC = () => {
             'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop',
         ]
+            // 您可以把完整的全球圖庫放在這裡作為最終的保險
       };
-      
-      const imagePrompt = `Photorealistic, vibrant travel photograph of ${plan.destination}, focusing on ${plan.tripTitle}. High quality, cinematic, 16:9 aspect ratio. No text or people.`;
-      
-      generateTripImage(imagePrompt).then(imageUrl => {
-          let finalPlan;
-          if (imageUrl) {
-            finalPlan = { ...planWithId, tripImageUrl: `data:image/jpeg;base64,${imageUrl}` };
-          } else {
-            const lowerCaseDestination = plan.destination.toLowerCase();
-            let matchedKey = 'general';
+          const imageList = countryImages[country] || countryImages['general'];
+          const randomIndex = Math.floor(Math.random() * imageList.length);
+          imageUrl = imageList[randomIndex];
+        }
 
-            for (const key in countryImages) {
-                if (key !== 'general' && (lowerCaseDestination.includes(key) || plan.tripTitle.toLowerCase().includes(key))) {
-                    matchedKey = key;
-                    break;
-                }
-            }
-            
-            const imageList = countryImages[matchedKey];
-            const randomIndex = Math.floor(Math.random() * imageList.length);
-            const randomDefaultImageUrl = imageList[randomIndex];
+        const finalPlan = { ...planWithId, tripImageUrl: imageUrl };
 
-            finalPlan = { ...planWithId, tripImageUrl: randomDefaultImageUrl };
-          }
-          setItinerary(currentItinerary => (currentItinerary?.id === finalPlan.id ? finalPlan : currentItinerary));
-          setHistory(prev => prev.map(p => p.id === finalPlan.id ? finalPlan : p));
-      }).finally(() => {
-          setIsGeneratingImage(false);
-      });
+        setItinerary(finalPlan);
+        setHistory(prev => prev.map(p => p.id === finalPlan.id ? finalPlan : p));
+      
+      } catch (imgErr) {
+        console.error("Error in image selection logic:", imgErr);
+        // 如果整個圖片流程都失敗，至少給一張最通用的圖片
+        const fallbackImageUrl = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop';
+        const finalPlan = { ...planWithId, tripImageUrl: fallbackImageUrl };
+        setItinerary(finalPlan);
+        setHistory(prev => prev.map(p => p.id === finalPlan.id ? finalPlan : p));
+      } finally {
+        setIsGeneratingImage(false);
+      }
 
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-    } finally {
       setIsLoading(false);
+      setIsGeneratingImage(false);
     }
   }, [language]);
   
@@ -203,7 +207,7 @@ const App: React.FC = () => {
     setError(null);
     try {
       const refinedPlan = await refineItinerary(itinerary, prompt, language);
-      const updatedPlan = { ...refinedPlan, id: itinerary.id, tripImageUrl: itinerary.tripImageUrl }; // Keep existing image
+      const updatedPlan = { ...refinedPlan, id: itinerary.id, tripImageUrl: itinerary.tripImageUrl };
       setItinerary(updatedPlan);
       setHistory(prev => prev.map(p => p.id === updatedPlan.id ? updatedPlan : p));
     } catch (err) {
