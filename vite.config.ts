@@ -26,6 +26,8 @@ export default defineConfig(({ mode }) => {
         define: {
             'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
             'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+            // --- 新增這一行 ---
+            'process.env.UNSPLASH_ACCESS_KEY': JSON.stringify(env.UNSPLASH_ACCESS_KEY)
         },
         resolve: {
             alias: {
