@@ -1,12 +1,12 @@
-
 import React, { useState, useRef } from 'react';
 import { Translations } from '../types';
 import { INTEREST_OPTIONS } from '../constants';
 import { Send, Upload, X, Plus } from 'lucide-react';
 import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf';
-// 直接匯入 worker，讓 Vite 幫我們打包，而不是從網路下載
-import 'pdfjs-dist/build/pdf.worker.entry';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// 將 worker 的路徑指向我們用外掛複製後的位置
+pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
  
 interface ItineraryFormProps {
   onSubmit: (destination: string, duration: string, arrivalTime: string, interests: string[], startDate: string, draftContent: string | null) => void;
